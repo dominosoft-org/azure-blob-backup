@@ -39,9 +39,12 @@ namespace Dominosoft.Azure.Blob
       var container = new BlobContainerClient(
         ConfigurationManager.AppSettings["BlobConnectionString"],
         ConfigurationManager.AppSettings["BlobContainerName"]);
+      var subDirectoriesSettings = ConfigurationManager.AppSettings["BackupSubDirectories"];
+      var subDirectories = string.IsNullOrEmpty(subDirectoriesSettings) ? null : subDirectoriesSettings.Split(',');
       var containerExists = await container.ExistsAsync(token);
       await container.CreateIfNotExistsAsync(cancellationToken: token);
       var files = Directory.GetFiles(this.LocalDirectory, "*", SearchOption.AllDirectories)
+        .Where(e => subDirectories == null || subDirectories.Contains(e.Replace(this.LocalDirectory, string.Empty).Split('\\', StringSplitOptions.RemoveEmptyEntries).FirstOrDefault()))
         .Select(e => new { FilePath = e, BlobPath = ConvertBlobPath(e) }).ToList();
       if (containerExists.Value)
       {

@@ -7,7 +7,7 @@ namespace Dominosoft.Azure.Blob
 {
   class Program
   {
-    static int Main(string[] args)
+    static int Main()
     {
       var cts = new CancellationTokenSource();
       Console.CancelKeyPress += (s, e) =>
@@ -15,9 +15,9 @@ namespace Dominosoft.Azure.Blob
         e.Cancel = true;
         cts.Cancel();
       };
-      return MainAsync(args, cts.Token).GetAwaiter().GetResult();
+      return MainAsync(cts.Token).GetAwaiter().GetResult();
     }
-    static Task<int> MainAsync(string[] args, CancellationToken token)
+    static Task<int> MainAsync(CancellationToken token)
     {
       var blobClient = new Uploader(ConfigurationManager.AppSettings["BackupDirectory"]);
       return blobClient.Start(token);
